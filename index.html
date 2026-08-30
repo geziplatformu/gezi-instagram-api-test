@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gezi Platformu • Instagram Paneli</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0d10;--panel:#12161b;--panel2:#171c22;--border:#28303a;--text:#f4f7fb;--muted:#9aa7b5;--accent:#56b4ff;--good:#63d49b;--bad:#ff7c7c}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#090b0e,#10141a);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text)}
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.brand h1{margin:0;font-size:24px}.brand p{margin:5px 0 0;color:var(--muted);font-size:14px}.badge{padding:8px 12px;border:1px solid var(--border);border-radius:999px;color:var(--muted);font-size:13px}
+    .card{background:rgba(18,22,27,.96);border:1px solid var(--border);border-radius:18px;padding:18px}.login{max-width:560px;margin:70px auto}.login h2{margin-top:0}.login p{color:var(--muted);line-height:1.55}.row{display:flex;gap:10px;flex-wrap:wrap}input,button,select{font:inherit}input{flex:1;min-width:220px;background:#0d1116;border:1px solid var(--border);color:var(--text);padding:12px 13px;border-radius:12px;outline:none}input:focus{border-color:var(--accent)}button{border:0;border-radius:12px;padding:11px 14px;background:var(--accent);color:#06111a;font-weight:700;cursor:pointer}button.secondary{background:#202832;color:var(--text);border:1px solid var(--border)}button:disabled{opacity:.5;cursor:not-allowed}.error{color:var(--bad);margin-top:12px;font-size:14px}.hidden{display:none!important}
+    .toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tabs button{background:#171d24;color:var(--muted);border:1px solid var(--border)}.tabs button.active{background:#223140;color:var(--text);border-color:#3a5166}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric strong{display:block;font-size:26px;margin-top:8px}.metric span{color:var(--muted);font-size:13px}.section{margin-top:16px}.section h2{font-size:17px;margin:0 0 12px}.posts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.post{background:var(--panel2);border:1px solid var(--border);border-radius:15px;padding:14px}.post-head{display:flex;justify-content:space-between;gap:12px}.post-type{font-size:11px;color:var(--accent);font-weight:800;letter-spacing:.04em}.post-date{font-size:12px;color:var(--muted)}.caption{margin:10px 0;color:#d8e0e8;line-height:1.45;font-size:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.stats{display:flex;gap:18px;color:var(--muted);font-size:13px}.status{color:var(--muted);padding:28px;text-align:center}.analysis{line-height:1.55;color:#dce4ec}.analysis b{color:var(--text)}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--border);font-size:13px}th{color:var(--muted);font-weight:600}.small{font-size:12px;color:var(--muted)}
+    @media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.posts{grid-template-columns:1fr}}@media(max-width:520px){.wrap{padding:15px}.grid{grid-template-columns:1fr 1fr}.metric strong{font-size:21px}.top{align-items:flex-start;flex-direction:column}.login{margin:25px auto}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand"><h1>Gezi Platformu Instagram Paneli</h1><p>Gönderiler, hesap istatistikleri, yorumlar ve mesajlar için tek ekran.</p></div><div id="connectionBadge" class="badge">Bağlantı bekleniyor</div></div>
+
+  <section id="loginView" class="card login">
+    <h2>Güvenli giriş</h2>
+    <p>Vercel'de oluşturduğun <b>INTERNAL_API_KEY</b> değerini gir. Anahtar sunucuya kaydedilmez; yalnızca bu tarayıcı sekmesinin oturumu boyunca tutulur.</p>
+    <div class="row"><input id="apiKey" type="password" autocomplete="off" placeholder="INTERNAL_API_KEY" /><button id="connectBtn">Bağlan</button></div>
+    <div id="loginError" class="error hidden"></div>
+  </section>
+
+  <main id="appView" class="hidden">
+    <div class="toolbar">
+      <div class="tabs"><button class="active" data-tab="dashboard">Özet</button><button data-tab="comments">Yorumlar</button><button data-tab="messages">Mesajlar</button></div>
+      <div class="row"><button id="refreshBtn" class="secondary">Yenile</button><button id="logoutBtn" class="secondary">Çıkış</button></div>
+    </div>
+
+    <section id="dashboardTab">
+      <div class="grid">
+        <div class="card metric"><span>Son 10 Beğeni</span><strong id="likesTotal">—</strong></div>
+        <div class="card metric"><span>Son 10 Yorum</span><strong id="commentsTotal">—</strong></div>
+        <div class="card metric"><span>Hesap Erişimi</span><strong id="reachValue">—</strong></div>
+        <div class="card metric"><span>Profil Görüntüleme</span><strong id="profileViews">—</strong></div>
+      </div>
+      <div class="section card"><h2>Teknik özet</h2><div id="analysisText" class="analysis status">Veriler yükleniyor…</div></div>
+      <div class="section"><h2>Son 10 gönderi</h2><div id="posts" class="posts"><div class="card status">Yükleniyor…</div></div></div>
+    </section>
+
+    <section id="commentsTab" class="hidden section card">
+      <h2>Gönderi yorumları</h2><p class="small">Bir gönderi seçerek son yorumları görüntüleyebilirsin.</p>
+      <div class="row"><select id="commentMedia" style="flex:1;min-width:220px;background:#0d1116;color:#fff;border:1px solid var(--border);padding:12px;border-radius:12px"></select><button id="loadCommentsBtn">Yorumları getir</button></div>
+      <div id="commentsList" class="status">Henüz gönderi seçilmedi.</div>
+    </section>
+
+    <section id="messagesTab" class="hidden section card">
+      <h2>Instagram konuşmaları</h2><p class="small">API'nin erişebildiği son konuşmalar listelenir. Bir konuşmayı seçerek mesajları açabilirsin.</p>
+      <div id="conversationsList" class="status">Konuşmaları görmek için bu sekmeyi aç.</div>
+    </section>
+  </main>
+</div>
+<script>
+(() => {
+  let apiKey = sessionStorage.getItem('gp_api_key') || '';
+  let mediaCache = [];
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  const num = n => new Intl.NumberFormat('tr-TR').format(Number(n||0));
+  const fmtDate = s => s ? new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(s)) : '—';
+  async function api(path, options={}) {
+    const headers = Object.assign({'Authorization':'Bearer '+apiKey,'Accept':'application/json'}, options.headers||{});
+    const r = await fetch(path,{...options,headers});
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(data.error || data.details || ('HTTP '+r.status));
+    return data;
+  }
+  function showApp(){ $('loginView').classList.add('hidden'); $('appView').classList.remove('hidden'); $('connectionBadge').textContent='Bağlı'; $('connectionBadge').style.color='var(--good)'; }
+  function showLogin(msg=''){ $('appView').classList.add('hidden'); $('loginView').classList.remove('hidden'); $('connectionBadge').textContent='Bağlantı bekleniyor'; $('connectionBadge').style.color=''; if(msg){$('loginError').textContent=msg;$('loginError').classList.remove('hidden');} }
+  function insightValue(payload, metric){ const item=(payload.data||[]).find(x=>x.name===metric); if(!item) return null; if(Array.isArray(item.values)&&item.values.length) return item.values[item.values.length-1].value; if(item.total_value&&item.total_value.value!=null) return item.total_value.value; return null; }
+  async function connect(){ const v=$('apiKey').value.trim(); if(v) apiKey=v; if(!apiKey){showLogin('API anahtarını gir.');return;} $('connectBtn').disabled=true; $('loginError').classList.add('hidden'); try{ await api('/api/instagram/media?limit=1'); sessionStorage.setItem('gp_api_key',apiKey); showApp(); await loadDashboard(); }catch(e){ showLogin('Bağlantı kurulamadı: '+e.message); }finally{$('connectBtn').disabled=false;} }
+  async function loadDashboard(){ $('posts').innerHTML='<div class="card status">Yükleniyor…</div>'; $('analysisText').textContent='Veriler yükleniyor…'; try{
+      const [media, insights] = await Promise.all([api('/api/instagram/media?limit=10'), api('/api/instagram/insights?metrics=reach,profile_views&period=day')]);
+      mediaCache=media.data||[];
+      const likes=mediaCache.reduce((a,p)=>a+Number(p.like_count||0),0), comments=mediaCache.reduce((a,p)=>a+Number(p.comments_count||0),0);
+      $('likesTotal').textContent=num(likes); $('commentsTotal').textContent=num(comments); $('reachValue').textContent=num(insightValue(insights,'reach')); $('profileViews').textContent=num(insightValue(insights,'profile_views'));
+      renderPosts(); buildAnalysis(likes,comments); fillCommentSelect();
+    }catch(e){ $('posts').innerHTML='<div class="card error">'+esc(e.message)+'</div>'; $('analysisText').textContent='Veriler alınamadı.'; }
+  }
+  function renderPosts(){ if(!mediaCache.length){$('posts').innerHTML='<div class="card status">Gönderi bulunamadı.</div>';return;} $('posts').innerHTML=mediaCache.map((p,i)=>`<article class="post"><div class="post-head"><span class="post-type">#${i+1} ${esc(p.media_type||'POST')}</span><span class="post-date">${esc(fmtDate(p.timestamp))}</span></div><div class="caption">${esc(p.caption||'Açıklama yok')}</div><div class="stats"><span>♥ ${num(p.like_count)}</span><span>💬 ${num(p.comments_count)}</span>${p.permalink?`<a href="${esc(p.permalink)}" target="_blank" rel="noopener" style="color:var(--accent);margin-left:auto">Instagram ↗</a>`:''}</div></article>`).join(''); }
+  function buildAnalysis(likes,comments){ if(!mediaCache.length){$('analysisText').textContent='Analiz için gönderi bulunamadı.';return;} const ranked=[...mediaCache].map((p,i)=>({...p,_i:i,_score:Number(p.like_count||0)+Number(p.comments_count||0)*2})).sort((a,b)=>b._score-a._score); const best=ranked[0], worst=ranked[ranked.length-1]; const avgLikes=likes/mediaCache.length, avgComments=comments/mediaCache.length; $('analysisText').innerHTML=`Son ${mediaCache.length} gönderide ortalama <b>${num(Math.round(avgLikes))} beğeni</b> ve <b>${num(avgComments.toFixed(1))} yorum</b> var. Basit etkileşim puanına göre en güçlü gönderi <b>#${best._i+1}</b> (${num(best.like_count)} beğeni, ${num(best.comments_count)} yorum); en düşük gönderi <b>#${worst._i+1}</b>. Bu özet yalnızca mevcut gönderi verisini kullanır; erişim/izlenme bazlı gönderi içgörülerini ayrıca ekleyebiliriz.`; }
+  function fillCommentSelect(){ $('commentMedia').innerHTML=mediaCache.map((p,i)=>`<option value="${esc(p.id)}">#${i+1} — ${esc((p.caption||p.media_type||'Gönderi').slice(0,55))}</option>`).join(''); }
+  async function loadComments(){ const id=$('commentMedia').value;if(!id)return; $('commentsList').innerHTML='Yükleniyor…'; try{const d=await api('/api/instagram/comments?media_id='+encodeURIComponent(id)+'&limit=25'); const list=d.data||[]; $('commentsList').innerHTML=list.length?`<table><thead><tr><th>Kullanıcı</th><th>Yorum</th><th>Tarih</th></tr></thead><tbody>${list.map(c=>`<tr><td>${esc(c.from?.username||c.from?.id||'—')}</td><td>${esc(c.text||'')}</td><td>${esc(fmtDate(c.timestamp))}</td></tr>`).join('')}</tbody></table>`:'Yorum bulunamadı.';}catch(e){$('commentsList').innerHTML='<span class="error">'+esc(e.message)+'</span>';}}
+  async function loadConversations(){ $('conversationsList').innerHTML='Yükleniyor…'; try{const d=await api('/api/instagram/conversations?limit=20'); const list=d.data||[]; if(!list.length){$('conversationsList').textContent='Konuşma bulunamadı.';return;} $('conversationsList').innerHTML=`<table><thead><tr><th>Konuşma</th><th>Güncelleme</th><th></th></tr></thead><tbody>${list.map(c=>`<tr><td>${esc(c.id)}</td><td>${esc(fmtDate(c.updated_time))}</td><td><button class="secondary openConv" data-id="${esc(c.id)}">Mesajları aç</button></td></tr>`).join('')}</tbody></table><div id="messageDetail" class="section"></div>`; document.querySelectorAll('.openConv').forEach(b=>b.addEventListener('click',()=>loadMessages(b.dataset.id))); }catch(e){$('conversationsList').innerHTML='<span class="error">'+esc(e.message)+'</span>';}}
+  async function loadMessages(id){ const el=$('messageDetail');el.innerHTML='<div class="status">Mesajlar yükleniyor…</div>'; try{const d=await api('/api/instagram/messages?conversation_id='+encodeURIComponent(id)+'&limit=25');const list=d.data||[];el.innerHTML=`<h2>Mesajlar</h2>${list.length?`<table><thead><tr><th>Gönderen</th><th>Mesaj</th><th>Tarih</th></tr></thead><tbody>${list.map(m=>`<tr><td>${esc(m.from?.username||m.from?.name||m.from?.id||'—')}</td><td>${esc(m.message||'')}</td><td>${esc(fmtDate(m.created_time))}</td></tr>`).join('')}</tbody></table>`:'Mesaj bulunamadı.'}`;}catch(e){el.innerHTML='<span class="error">'+esc(e.message)+'</span>';}}
+  document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');['dashboard','comments','messages'].forEach(t=>$(t+'Tab').classList.toggle('hidden',t!==btn.dataset.tab));if(btn.dataset.tab==='messages')loadConversations();}));
+  $('connectBtn').addEventListener('click',connect); $('apiKey').addEventListener('keydown',e=>{if(e.key==='Enter')connect();}); $('refreshBtn').addEventListener('click',loadDashboard); $('loadCommentsBtn').addEventListener('click',loadComments); $('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('gp_api_key');apiKey='';$('apiKey').value='';showLogin();});
+  if(apiKey){$('apiKey').value=apiKey;connect();}else showLogin();
+})();
+</script>
+</body>
+</html>
